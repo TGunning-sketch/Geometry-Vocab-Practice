@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geometry Vocabulary Review</title>
+<style>
+:root{
+  --ink:#203040; --muted:#617080; --paper:#ffffff; --bg:#eef4f8;
+  --accent:#3567d6; --accent2:#19a974; --bad:#d9534f; --line:#d9e2ec;
+  --shadow:0 8px 24px rgba(31,51,73,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#eef4f8,#f8fbfd);color:var(--ink)}
+header{background:#203b57;color:#fff;padding:28px 20px;text-align:center}
+header h1{margin:0 0 8px;font-size:clamp(26px,4vw,40px)}
+header p{margin:0;opacity:.9}
+.container{max-width:1100px;margin:auto;padding:22px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px 17px;cursor:pointer;font-weight:700;color:var(--ink)}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:24px;margin-bottom:18px}
+h2{margin-top:0}.muted{color:var(--muted)}
+.progress{height:10px;background:#e7edf2;border-radius:99px;overflow:hidden;margin:10px 0 20px}
+.progress > div{height:100%;background:var(--accent);width:0;transition:.3s}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.vocab{border:1px solid var(--line);border-radius:12px;padding:15px;background:#fbfdff}
+.vocab strong{display:block;color:var(--accent);margin-bottom:7px}
+.flash{min-height:280px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;user-select:none}
+.flash .big{font-size:clamp(28px,5vw,48px);font-weight:800}
+.flash .small{font-size:20px;line-height:1.5;max-width:780px}
+button{font:inherit}
+.primary,.secondary{border:0;border-radius:10px;padding:12px 18px;cursor:pointer;font-weight:700}
+.primary{background:var(--accent);color:#fff}.secondary{background:#eaf0f6;color:var(--ink)}
+.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:15px}
+.question{font-size:21px;font-weight:700;margin-bottom:16px}
+.choice{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);padding:13px 15px;border-radius:10px;margin:9px 0;cursor:pointer}
+.choice:hover{border-color:#9db6d2;background:#f8fbff}
+.choice.correct{border-color:var(--accent2);background:#eafaf3}.choice.wrong{border-color:var(--bad);background:#fff0ef}
+.feedback{font-weight:700;margin-top:14px;min-height:24px}
+.score{font-size:34px;font-weight:800;text-align:center}
+.smallbtn{padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.match-board{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.match-item{padding:14px;border:2px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}
+.match-item.selected{border-color:var(--accent);background:#eef4ff}
+.match-item.done{opacity:.55;cursor:default}
+@media(max-width:650px){.match-board{grid-template-columns:1fr}.container{padding:14px}}
+footer{text-align:center;color:var(--muted);padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📐 Geometry Vocabulary Review</h1>
+  <p>Learn it • Practice it • Prove you know it</p>
+</header>
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" data-tab="learn">Learn</button>
+    <button class="tab" data-tab="flash">Flashcards</button>
+    <button class="tab" data-tab="match">Match It</button>
+    <button class="tab" data-tab="quiz">Quiz</button>
+  </div>
+
+  <section id="learn" class="panel active">
+    <div class="card">
+      <h2>Vocabulary Bank</h2>
+      <p class="muted">Use this page to review all of the terms from your packet. Then try the games.</p>
+      <div id="vocabGrid" class="grid"></div>
+    </div>
+  </section>
+
+  <section id="flash" class="panel">
+    <div class="card">
+      <h2>Flashcards</h2>
+      <p class="muted">Click the card to flip it. Can you say the definition before you flip?</p>
+      <div class="progress"><div id="flashProgress"></div></div>
+      <div id="flashCard" class="flash card" style="margin:0;border:2px solid #dbe6ef"></div>
+      <div class="controls">
+        <button class="secondary" id="prevFlash">← Previous</button>
+        <button class="primary" id="flipFlash">Flip Card</button>
+        <button class="secondary" id="nextFlash">Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="match" class="panel">
+    <div class="card">
+      <h2>Match It</h2>
+      <p class="muted">Choose a term and then choose its matching definition. You will get 10 randomly selected pairs.</p>
+      <div id="matchStatus" class="muted"></div>
+      <div class="match-board" id="matchBoard"></div>
+      <div class="controls"><button class="primary" id="newMatch">New Round</button></div>
+    </div>
+  </section>
+
+  <section id="quiz" class="panel">
+    <div class="card">
+      <h2>Vocabulary Quiz</h2>
+      <p class="muted">15 questions. Questions and choices are shuffled each time.</p>
+      <div class="progress"><div id="quizProgress"></div></div>
+      <div id="quizArea"></div>
+    </div>
+  </section>
+</div>
+<footer>Geometry Vocabulary Review • Student Practice Activity</footer>
+
+<script>
+const vocab = [{"term": "Point", "definition": "Has location only. No length, width, or depth. Named using a capital letter or a coordinate pair."}, {"term": "Line", "definition": "Extends indefinitely in both directions and has no thickness or width. Named using a lowercase letter or any two points on the line."}, {"term": "Plane", "definition": "A flat surface that extends in all directions and contains at least 3 noncollinear points. Named using a single uppercase letter or 3 noncollinear points."}, {"term": "Congruent", "definition": "Having the same size and shape."}, {"term": "Congruent Segments", "definition": "Segments that have the same length."}, {"term": "Midpoint", "definition": "A point that divides a segment into two congruent segments. If M is the midpoint of PQ, then PM = MQ."}, {"term": "Segment Bisector", "definition": "A segment, line, or plane that intersects a segment at its midpoint."}, {"term": "Ray", "definition": "A part of a line that has one endpoint and extends forever in one direction."}, {"term": "Opposite Rays", "definition": "Two rays that share the same endpoint and extend in directly opposite directions."}, {"term": "Angle", "definition": "A figure formed by two non-collinear rays with a common endpoint. The common endpoint is the vertex."}, {"term": "Congruent Angles", "definition": "Angles that have the same measure."}, {"term": "Right Angle", "definition": "An angle whose measure is 90 degrees."}, {"term": "Perpendicular Lines", "definition": "Two lines that intersect to form right angles."}, {"term": "Acute Angle", "definition": "An angle whose measure is between 0 and 90 degrees."}, {"term": "Obtuse Angle", "definition": "An angle whose measure is between 90 and 180 degrees."}, {"term": "Straight Angle", "definition": "An angle whose measure is 180 degrees."}, {"term": "Angle Bisector", "definition": "A ray that separates an angle into two equal angles."}, {"term": "Vertical Angles", "definition": "Two nonadjacent angles formed by two intersecting lines."}, {"term": "Complementary Angles", "definition": "Two angles whose measures have a sum of 90 degrees."}, {"term": "Supplementary Angles", "definition": "Two angles whose measures have a sum of 180 degrees."}, {"term": "Linear Pair", "definition": "Two angles that are adjacent and supplementary."}, {"term": "Skew Lines", "definition": "Lines in three-dimensional space that do not intersect and are not parallel to each other."}, {"term": "Non-Collinear Points", "definition": "Points that do NOT lie on the same line."}, {"term": "Segment (Line Segment)", "definition": "Part of a line consisting of two endpoints and all points between them. Segments are named by their endpoints."}, {"term": "Parallel Lines", "definition": "Lines in the same plane that do not intersect."}, {"term": "Parallel Planes", "definition": "Planes that do not intersect."}, {"term": "Collinear Points", "definition": "Points that lie on the same line."}, {"term": "Coplanar Points", "definition": "Points that lie in the same plane."}, {"term": "Coplanar Lines", "definition": "Lines that lie in the same plane."}];
+const $ = id => document.getElementById(id);
+
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); $(btn.dataset.tab).classList.add('active');
+  });
+});
+
+function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+
+$('vocabGrid').innerHTML = vocab.map(x =>
+  `<div class="vocab"><strong>${x.term}</strong><span>${x.definition}</span></div>`
+).join('');
+
+/* Flashcards */
+let fi=0, flipped=false;
+function renderFlash(){
+  const x=vocab[fi];
+  $('flashProgress').style.width=((fi+1)/vocab.length*100)+'%';
+  $('flashCard').innerHTML = flipped
+    ? `<div><div class="small">${x.definition}</div><p class="muted">Click to see the term</p></div>`
+    : `<div><div class="big">${x.term}</div><p class="muted">Click to reveal the definition</p></div>`;
+}
+$('flashCard').onclick=()=>{flipped=!flipped;renderFlash()};
+$('flipFlash').onclick=()=>{flipped=!flipped;renderFlash()};
+$('prevFlash').onclick=()=>{fi=(fi-1+vocab.length)%vocab.length;flipped=false;renderFlash()};
+$('nextFlash').onclick=()=>{fi=(fi+1)%vocab.length;flipped=false;renderFlash()};
+renderFlash();
+
+/* Matching */
+let matchPairs=[], selectedTerm=null, selectedDef=null, matched=0;
+function newMatch(){
+  matchPairs=shuffle(vocab).slice(0,10).map((x,i)=>({...x,id:i}));
+  selectedTerm=selectedDef=null; matched=0;
+  renderMatch();
+}
+function renderMatch(){
+  const left=shuffle(matchPairs), right=shuffle(matchPairs);
+  $('matchStatus').textContent=`Matched: ${matched} / ${matchPairs.length}`;
+  const board=$('matchBoard');
+  board.innerHTML='';
+  const l=document.createElement('div'), r=document.createElement('div');
+  left.forEach(x=>{const b=document.createElement('button');b.className='match-item';b.dataset.id=x.id;b.dataset.side='term';b.textContent=x.term;b.onclick=()=>pick(b);l.appendChild(b)});
+  right.forEach(x=>{const b=document.createElement('button');b.className='match-item';b.dataset.id=x.id;b.dataset.side='def';b.textContent=x.definition;b.onclick=()=>pick(b);r.appendChild(b)});
+  board.append(l,r);
+}
+function pick(btn){
+  if(btn.classList.contains('done')) return;
+  if(btn.dataset.side==='term'){
+    document.querySelectorAll('[data-side="term"]').forEach(x=>x.classList.remove('selected'));
+    btn.classList.add('selected'); selectedTerm=btn;
+  } else {
+    document.querySelectorAll('[data-side="def"]').forEach(x=>x.classList.remove('selected'));
+    btn.classList.add('selected'); selectedDef=btn;
+  }
+  if(selectedTerm && selectedDef){
+    if(selectedTerm.dataset.id===selectedDef.dataset.id){
+      selectedTerm.classList.remove('selected'); selectedDef.classList.remove('selected');
+      selectedTerm.classList.add('done'); selectedDef.classList.add('done');
+      matched++;
+      selectedTerm=selectedDef=null;
+      $('matchStatus').textContent=`Matched: ${matched} / ${matchPairs.length}`;
+      if(matched===matchPairs.length) $('matchStatus').textContent='🎉 Great job! You matched all 10!';
+    } else {
+      setTimeout(()=>{
+        selectedTerm?.classList.remove('selected');
+        selectedDef?.classList.remove('selected');
+        selectedTerm=selectedDef=null;
+      },500);
+    }
+  }
+}
+$('newMatch').onclick=newMatch;
+newMatch();
+
+/* Quiz */
+let quiz=[], qi=0, score=0, answered=false;
+function startQuiz(){
+  quiz=shuffle(vocab).slice(0,15); qi=0; score=0; answered=false; renderQuiz();
+}
+function renderQuiz(){
+  if(qi>=quiz.length){showResults();return}
+  const q=quiz[qi];
+  $('quizProgress').style.width=(qi/quiz.length*100)+'%';
+  const distractors=shuffle(vocab.filter(x=>x.term!==q.term)).slice(0,3);
+  const choices=shuffle([q,...distractors]);
+  $('quizArea').innerHTML=`
+    <div class="question">${qi+1}. Which vocabulary word matches this definition?</div>
+    <div class="card" style="background:#f8fbff"><strong>${q.definition}</strong></div>
+    <div id="choices"></div>
+    <div id="feedback" class="feedback"></div>
+    <div class="controls"><button class="primary" id="nextQ" style="display:none">Next Question →</button></div>`;
+  const c=$('choices');
+  choices.forEach(x=>{
+    const b=document.createElement('button'); b.className='choice'; b.textContent=x.term;
+    b.onclick=()=>answer(b,x.term===q.term,q.term);
+    c.appendChild(b);
+  });
+}
+function answer(btn,correct,answer){
+  if(answered) return;
+  answered=true;
+  document.querySelectorAll('.choice').forEach(b=>b.disabled=true);
+  if(correct){score++;btn.classList.add('correct');$('feedback').textContent='✓ Correct!'}
+  else{
+    btn.classList.add('wrong'); $('feedback').textContent=`Not quite. The answer is ${answer}.`;
+    [...document.querySelectorAll('.choice')].find(b=>b.textContent===answer)?.classList.add('correct');
+  }
+  $('nextQ').style.display='inline-block';
+  $('nextQ').onclick=()=>{qi++;answered=false;renderQuiz()};
+}
+function showResults(){
+  $('quizProgress').style.width='100%';
+  const pct=Math.round(score/quiz.length*100);
+  let msg=pct>=90?'Excellent vocabulary work! 🎉':pct>=70?'Nice job! Review the terms you missed.':'Keep practicing—try the flashcards and match game, then retake the quiz.';
+  $('quizArea').innerHTML=`<div class="score">${score} / ${quiz.length}</div>
+    <p style="text-align:center;font-size:20px">${pct}%</p>
+    <p style="text-align:center">${msg}</p>
+    <div class="controls"><button class="primary" id="restart">Retake Quiz</button></div>`;
+  $('restart').onclick=startQuiz;
+}
+startQuiz();
+</script>
+</body>
+</html>
